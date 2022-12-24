@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 
     const char *target_dir = argv[1];
 
-    printf("Finding %d largest files in: %s\n", N, target_dir);
+    printf("Finding %d largest files in: %s\n", num_entries, target_dir);
 
     // recursively visit all entries in the specified directory
     walk(target_dir, fs_entries, info_size);
