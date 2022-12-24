@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
     // output ten largest files found
     for (int i = 0; i < num_entries; i++)
     {
-        printf("%s\t%d bytes\n", fs_entries[i].name, fs_entries[i].size);
+        printf("%s\t%d\n", fs_entries[i].name, fs_entries[i].size);
     }
 
     return 0;
