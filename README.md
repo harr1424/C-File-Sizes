@@ -1,6 +1,5 @@
 # c_filesystem_size
-A simple program written in C to find large files in a specified directory
-
+A simple program written in C to find large files in a specified directory. 
 
 ```
 Finding 10 largest files in: /Users/user/google-cloud-sdk
@@ -15,3 +14,5 @@ Finding 10 largest files in: /Users/user/google-cloud-sdk
 /Users/user/google-cloud-sdk/lib/googlecloudsdk/generated_clients/apis/compute/v1/__pycache__/compute_v1_messages.cpython-37.pyc        3388318 bytes
 /Users/user/google-cloud-sdk/lib/googlecloudsdk/generated_clients/apis/compute/v1/compute_v1_messages.py        3360648 bytes
 ```
+
+I created similar programs using [C++](https://github.com/harr1424/cpp_filesystem_size), [Go](https://github.com/harr1424/go_filesystem_size), and [Rust](https://github.com/harr1424/hello_rust). 
