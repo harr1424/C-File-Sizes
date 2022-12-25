@@ -3,7 +3,6 @@ A simple program written in C to find large files in a specified directory.
 
 ```
 Finding 10 largest files in: /Users/user/google-cloud-sdk
-Finding 10 largest files in: /Users/user/google-cloud-sdk
 /Users/user/google-cloud-sdk/bin/anthoscli      94968320
 /Users/user/google-cloud-sdk/data/cli/gcloud.json       71649707
 /Users/user/google-cloud-sdk/lib/googlecloudsdk/generated_clients/apis/compute_alpha.json       4728478
