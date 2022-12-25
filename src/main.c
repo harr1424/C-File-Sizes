@@ -1,31 +1,33 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <dirent.h>
 #include <sys/stat.h>
 #include <string.h>
 #include "fs_info.h"
 
-// size of array used to contain filesystem entries
-const int N = 100000;
+// initial size of array used to contain filesystem entries
+int N = 100;
 
 // number of largest entries to output
 const int num_entries = 10;
 
-// declare an array of type info to contain information about filesystem entries
-struct info fs_entries[N];
+// global pointer to current FS_Info array
+// will be updated as the array is resized using dynamic memory allocation
+struct FS_Info *curr_fs_info_ptr;
 
 // determine the size of the info struct, used for qsort
-const int info_size = sizeof(struct info);
+const int info_size = sizeof(struct FS_Info);
 
 // used to sort fs_entries array descending in terms of entry size
 int compare(const void *a, const void *b)
 {
-    struct info *entryA = (struct info *)a;
-    struct info *entryB = (struct info *)b;
+    struct FS_Info *entryA = (struct FS_Info *)a;
+    struct FS_Info *entryB = (struct FS_Info *)b;
 
     return (entryB->size - entryA->size);
 }
 
-void get_size(char *path, struct info fs_info[N], int info_size)
+void get_size(char *path)
 {
     static int items_added = 0;
 
@@ -34,14 +36,31 @@ void get_size(char *path, struct info fs_info[N], int info_size)
     {
         if (items_added < N) // if array capacity will not be exceeded
         {
-            strcpy(fs_info[items_added].name, path);
-            fs_info[items_added].size = st.st_size;
+            strcpy(curr_fs_info_ptr[items_added].name, path);
+            curr_fs_info_ptr[items_added].size = st.st_size;
 
             items_added++;
         }
-        else
+        else // double the size of the containing array
         {
-            puts("ERROR: Number of filesystem entries exceeds array");
+            // puts("Re-allocating array to fit additional fs_entries");
+
+            N *= 2;
+            struct FS_Info *resized_fs_entries = realloc(curr_fs_info_ptr, N * sizeof(*curr_fs_info_ptr));
+            if (resized_fs_entries)
+            {
+                curr_fs_info_ptr = resized_fs_entries;
+
+                strcpy(curr_fs_info_ptr[items_added].name, path);
+                curr_fs_info_ptr[items_added].size = st.st_size;
+
+                items_added++;
+            }
+            else
+            {
+                puts("An error occurred when attempting to resize the array!");
+                exit(-1);
+            }
         }
     }
     else
@@ -50,22 +69,21 @@ void get_size(char *path, struct info fs_info[N], int info_size)
     }
 }
 
-void walk(const char *currDir, struct info fs_entries[N], int info_size)
+void walk(const char *currDir)
 {
     DIR *dir = opendir(currDir);
     struct dirent *entry;
 
-    if (dir == NULL)
+    if (dir == NULL) // directory could not be opened
     {
-        // directory could not be opened
         return;
     }
 
     while ((entry = readdir(dir)) != NULL)
     {
         if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
+        // if directory is current dir or parent dir
         {
-            // if directory is current dir or parent dir
             continue;
         }
 
@@ -73,12 +91,12 @@ void walk(const char *currDir, struct info fs_entries[N], int info_size)
         snprintf(path_to_entry, sizeof(path_to_entry), "%s/%s", currDir, entry->d_name);
 
         // use path_to_entry to call stats on the entry
-        get_size(path_to_entry, fs_entries, info_size);
+        get_size(path_to_entry); // fs_entries will only be used on first call
 
         if (entry->d_type == DT_DIR)
         {
             // recursively visit subdirectories
-            walk(path_to_entry, fs_entries, info_size);
+            walk(path_to_entry);
         }
     }
     closedir(dir);
@@ -95,17 +113,25 @@ int main(int argc, char *argv[])
 
     printf("Finding %d largest files in: %s\n", num_entries, target_dir);
 
+    /* Create a pointer to the start of the FS_Info array and set the global
+        variable curr_fs_info_ptr to this memory address
+    */
+    struct FS_Info *fs_entries = malloc(N * sizeof(struct FS_Info));
+    curr_fs_info_ptr = fs_entries;
+
     // recursively visit all entries in the specified directory
-    walk(target_dir, fs_entries, info_size);
+    walk(target_dir);
 
     // sort the entries descending by file size
-    qsort(fs_entries, N, info_size, compare);
+    qsort(curr_fs_info_ptr, N, info_size, compare);
 
     // output ten largest files found
     for (int i = 0; i < num_entries; i++)
     {
-        printf("%s\t%d\n", fs_entries[i].name, fs_entries[i].size);
+        printf("%s\t%d\n", curr_fs_info_ptr[i].name, curr_fs_info_ptr[i].size);
     }
+
+    free(curr_fs_info_ptr); // good practice, but program is over and OS will reclaim anyways 
 
     return 0;
 }
