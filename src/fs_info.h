@@ -6,9 +6,9 @@
     An array of this type will be used to catalog all filesystem entries for 
     the directory specified as command line argument.
 */
-struct FS_Info {
+typedef struct FS_Info {
     char name[1024];
     int size;
-};
+} FS_Info ;
 
 #endif
