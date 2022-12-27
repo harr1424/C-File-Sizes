@@ -3,6 +3,8 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <string.h>
+#include <limits.h>
+#include <unistd.h>
 #include "fs_info.h"
 
 // initial size of array used to contain filesystem entries
@@ -16,12 +18,12 @@ const int num_entries = 10;
 FS_Info *curr_fs_info_ptr;
 
 // used to sort fs_entries array descending in terms of entry size
-int compare(const void *a, const void *b)
+static int compare(const void *a, const void *b)
 {
-    struct FS_Info *entryA = (FS_Info *)a;
-    struct FS_Info *entryB = (FS_Info *)b;
+    const struct FS_Info *entryA = (FS_Info *)a;
+    const struct FS_Info *entryB = (FS_Info *)b;
 
-    return (entryB->size - entryA->size);
+    return (entryB->size - entryA->size) - (entryA->size - entryB->size);
 }
 
 void update_fs_info_arr(char *path)
@@ -33,7 +35,7 @@ void update_fs_info_arr(char *path)
     {
         if (items_added < fs_info_arr_size) // if array capacity will not be exceeded
         {
-            strncpy(curr_fs_info_ptr[items_added].name, path, sizeof(curr_fs_info_ptr[items_added].name) -1);
+            strncpy(curr_fs_info_ptr[items_added].name, path, sizeof(curr_fs_info_ptr[items_added].name) - 1);
             curr_fs_info_ptr[items_added].size = st.st_size;
 
             items_added++;
@@ -46,7 +48,7 @@ void update_fs_info_arr(char *path)
             {
                 curr_fs_info_ptr = resized_fs_entries;
 
-                strncpy(curr_fs_info_ptr[items_added].name, path, sizeof(curr_fs_info_ptr[items_added].name) -1);
+                strncpy(curr_fs_info_ptr[items_added].name, path, sizeof(curr_fs_info_ptr[items_added].name) - 1);
                 curr_fs_info_ptr[items_added].size = st.st_size;
 
                 items_added++;
@@ -83,7 +85,7 @@ void walk(const char *currDir)
             continue;
         }
 
-        char path_to_entry[1024];
+        char path_to_entry[PATH_MAX];
         snprintf(path_to_entry, sizeof(path_to_entry) - 1, "%s/%s", currDir, entry->d_name);
         path_to_entry[sizeof(path_to_entry) - 1] = '\0';
 
@@ -101,14 +103,33 @@ void walk(const char *currDir)
 
 int main(int argc, char *argv[])
 {
-    if (argc != 2)
-    {
-        char* error_message = "Usage: %s <target directory>\n", argv[0];
+
+    // a char array to hold a filesystem path
+    char target_dir[PATH_MAX];
+
+    if (argc > 2)
+    { // more than one argument passed at invocation 
+        char *error_message = "Usage: %s <target directory>\n", argv[0];
         fprintf(stderr, "%s", error_message);
         return EXIT_FAILURE;
     }
 
-    const char *target_dir = argv[1];
+    else if (argc == 1)
+    { // no argument passed at invocation, default to current working directory 
+        if (getcwd(target_dir, sizeof(target_dir)) != NULL)
+        {
+            printf("Defaulting to current directory\n");
+        }
+        else
+        {
+            perror("Unable to detect current working directory, try passing a directory as command line argument");
+            exit(EXIT_FAILURE);
+        }
+    }
+    else
+    { // exactly one path specified as argument at invocation 
+        strncpy(target_dir, argv[1], PATH_MAX);
+    };
 
     printf("Finding %d largest files in: %s\n", num_entries, target_dir);
 
@@ -116,7 +137,7 @@ int main(int argc, char *argv[])
         variable curr_fs_info_ptr to this memory address
     */
     FS_Info *fs_entries = calloc(fs_info_arr_size, sizeof(*fs_entries));
-    if (!fs_entries) 
+    if (!fs_entries)
     {
         fprintf(stderr, "Malloc of fs_entries failed in main\n");
         return EXIT_FAILURE;
@@ -139,4 +160,3 @@ int main(int argc, char *argv[])
 
     return EXIT_SUCCESS;
 }
- 
