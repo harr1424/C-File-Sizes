@@ -10,8 +10,8 @@ build/main.o: src/main.c
 clean: 
 	rm -f build/my_binary build/*.o
 
-run-arg: 
+run: 
 	./build/binary $(DIR)
 
-run-no-arg:
+run-no-args:
 	./build/binary

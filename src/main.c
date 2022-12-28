@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
     // output ten largest files found
     for (int i = 0; i < num_entries; i++)
     {
-        printf("%s\t%d\n", curr_fs_info_ptr[i].name, curr_fs_info_ptr[i].size);
+        printf("%s\t%lld\n", curr_fs_info_ptr[i].name, curr_fs_info_ptr[i].size);
     }
 
     free(curr_fs_info_ptr); // good practice, but program is over and OS will reclaim anyways

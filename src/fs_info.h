@@ -8,7 +8,7 @@
 */
 typedef struct FS_Info {
     char name[1024];
-    int size;
+    long long size;
 } FS_Info ;
 
 #endif
