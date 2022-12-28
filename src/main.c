@@ -7,15 +7,11 @@
 #include <unistd.h>
 #include "fs_info.h"
 
-// initial size of array used to contain filesystem entries
-size_t fs_info_arr_size = 100;
+// size of array used to contain filesystem entries
+const size_t fs_info_arr_size = 10;
 
-// number of largest entries to output
-const int num_entries = 10;
-
-// global pointer to current FS_Info array
-// will be updated as the array is resized using dynamic memory allocation
-FS_Info *curr_fs_info_ptr;
+// global pointer to FS_Info array
+FS_Info *fs_info_arr[fs_info_arr_size];
 
 // used to sort fs_entries array descending in terms of entry size
 static int compare(const void *a, const void *b)
@@ -26,6 +22,30 @@ static int compare(const void *a, const void *b)
     return (entryB->size - entryA->size) - (entryA->size - entryB->size);
 }
 
+/*
+Iterates over an array of FS_Info structs and returns a pointer to the struct 
+having the smallest size member. 
+*/
+FS_Info *get_smallest_entry(FS_Info **entries)
+{
+    long long smallest = entries[0]->size;
+    FS_Info *target;
+
+    for (int i = 1; i < fs_info_arr_size * sizeof(FS_Info); i += sizeof(FS_Info))
+    {
+        if (entries[i]->size < smallest)
+        {
+            smallest = entries[i]->size;
+            target = entries[i];
+        }
+    }
+    return target;
+}
+
+/*
+Add entires to the array. If the array is full, use the above function to find the
+struct having the smallest file size, and if the current file size is larger, replace it.
+*/
 void update_fs_info_arr(char *path)
 {
     static int items_added = 0;
@@ -35,28 +55,19 @@ void update_fs_info_arr(char *path)
     {
         if (items_added < fs_info_arr_size) // if array capacity will not be exceeded
         {
-            strncpy(curr_fs_info_ptr[items_added].name, path, sizeof(curr_fs_info_ptr[items_added].name) - 1);
-            curr_fs_info_ptr[items_added].size = st.st_size;
+            strncpy(fs_info_arr[items_added]->name, path, sizeof(fs_info_arr[items_added]->name)/sizeof(fs_info_arr[items_added]->name[0]) - 1);
+            fs_info_arr[items_added]->size = st.st_size;
 
             items_added++;
         }
-        else // double the size of the containing array
+        else 
+        // find entry having the smallest size and replace it with the current entry if it is larger
         {
-            fs_info_arr_size *= 2;
-            FS_Info *resized_fs_entries = realloc(curr_fs_info_ptr, fs_info_arr_size * sizeof(*curr_fs_info_ptr));
-            if (resized_fs_entries)
+            FS_Info *smallest = get_smallest_entry(fs_info_arr); 
+            if (st.st_size > smallest->size)
             {
-                curr_fs_info_ptr = resized_fs_entries;
-
-                strncpy(curr_fs_info_ptr[items_added].name, path, sizeof(curr_fs_info_ptr[items_added].name) - 1);
-                curr_fs_info_ptr[items_added].size = st.st_size;
-
-                items_added++;
-            }
-            else
-            {
-                perror("An error occurred when attempting to resize the array!");
-                exit(EXIT_FAILURE);
+                strncpy(smallest->name, path, sizeof(smallest->name)/sizeof(smallest->name[0]) - 1);
+                smallest->size = st.st_size;
             }
         }
     }
@@ -108,14 +119,14 @@ int main(int argc, char *argv[])
     char target_dir[PATH_MAX];
 
     if (argc > 2)
-    { // more than one argument passed at invocation 
+    { // more than one argument passed at invocation
         char *error_message = "Usage: %s <target directory>\n", argv[0];
         fprintf(stderr, "%s", error_message);
         return EXIT_FAILURE;
     }
 
     else if (argc == 1)
-    { // no argument passed at invocation, default to current working directory 
+    { // no argument passed at invocation, default to current working directory
         if (getcwd(target_dir, sizeof(target_dir)) != NULL)
         {
             printf("Defaulting to current directory\n");
@@ -127,36 +138,23 @@ int main(int argc, char *argv[])
         }
     }
     else
-    { // exactly one path specified as argument at invocation 
+    { // exactly one path specified as argument at invocation
         strncpy(target_dir, argv[1], PATH_MAX);
     };
 
-    printf("Finding %d largest files in: %s\n", num_entries, target_dir);
-
-    /* Create a pointer to the start of the FS_Info array and set the global
-        variable curr_fs_info_ptr to this memory address
-    */
-    FS_Info *fs_entries = calloc(fs_info_arr_size, sizeof(*fs_entries));
-    if (!fs_entries)
-    {
-        fprintf(stderr, "Malloc of fs_entries failed in main\n");
-        return EXIT_FAILURE;
-    }
-    curr_fs_info_ptr = fs_entries;
+    printf("Finding the %zu largest files in: %s\n", fs_info_arr_size, target_dir);
 
     // recursively visit all entries in the specified directory
     walk(target_dir);
 
     // sort the entries descending by file size
-    qsort(curr_fs_info_ptr, fs_info_arr_size, sizeof(*curr_fs_info_ptr), compare);
+    qsort(fs_info_arr, fs_info_arr_size, sizeof(*fs_info_arr), compare);
 
     // output ten largest files found
-    for (int i = 0; i < num_entries; i++)
+    for (int i = 0; i < fs_info_arr_size; i++)
     {
-        printf("%s\t%lld\n", curr_fs_info_ptr[i].name, curr_fs_info_ptr[i].size);
+        printf("%s\t%lld\n", fs_info_arr[i]->name, fs_info_arr[i]->size);
     }
-
-    free(curr_fs_info_ptr); // good practice, but program is over and OS will reclaim anyways
 
     return EXIT_SUCCESS;
 }
