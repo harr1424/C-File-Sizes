@@ -5,6 +5,7 @@
 #include <string.h>
 #include <limits.h>
 #include <unistd.h>
+#include <time.h>
 
 // size of array used to contain filesystem entries
 const size_t fs_info_arr_size = 10;
@@ -121,6 +122,7 @@ void walk(const char *currDir)
 
 int main(int argc, char *argv[])
 {
+    float startTime = (float)clock()/CLOCKS_PER_SEC;
 
     // a char array to hold a filesystem path
     char target_dir[PATH_MAX];
@@ -159,6 +161,10 @@ int main(int argc, char *argv[])
     // sort the entries descending by file size
     qsort(fs_info_arr, fs_info_arr_size, sizeof(*fs_info_arr), compare);
 
+    float endTime = (float)clock()/CLOCKS_PER_SEC;
+
+    printf("Program completed in %f seconds\n", endTime - startTime);
+
     // output ten largest files found
     for (int i = 0; i < fs_info_arr_size; i++)
     {
@@ -167,3 +173,5 @@ int main(int argc, char *argv[])
 
     return EXIT_SUCCESS;
 }
+
+// static allocation averages 0.2 seconds 
