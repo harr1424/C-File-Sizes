@@ -125,29 +125,29 @@ int main(int argc, char *argv[])
     // a char array to hold a filesystem path
     char target_dir[PATH_MAX];
 
-    // if (argc > 2)
-    // { // more than one argument passed at invocation
-    //     char *error_message = "Usage: %s <target directory>\n", argv[0];
-    //     fprintf(stderr, "%s", error_message);
-    //     return EXIT_FAILURE;
-    // }
+    if (argc > 2)
+    { // more than one argument passed at invocation
+        char *error_message = "Usage: %s <target directory>\n", argv[0];
+        fprintf(stderr, "%s", error_message);
+        return EXIT_FAILURE;
+    }
 
-    // else if (argc == 1)
-    // { // no argument passed at invocation, default to current working directory
-    //     if (getcwd(target_dir, sizeof(target_dir)) != NULL)
-    //     {
-    //         printf("Defaulting to current directory\n");
-    //     }
-    //     else
-    //     {
-    //         perror("Unable to detect current working directory, try passing a directory as command line argument");
-    //         exit(EXIT_FAILURE);
-    //     }
-    // }
-    // else
-    // { // exactly one path specified as argument at invocation
-    //     strncpy(target_dir, argv[1], PATH_MAX);
-    // };
+    else if (argc == 1)
+    { // no argument passed at invocation, default to current working directory
+        if (getcwd(target_dir, sizeof(target_dir)) != NULL)
+        {
+            printf("Defaulting to current directory\n");
+        }
+        else
+        {
+            perror("Unable to detect current working directory, try passing a directory as command line argument");
+            exit(EXIT_FAILURE);
+        }
+    }
+    else
+    { // exactly one path specified as argument at invocation
+        strncpy(target_dir, argv[1], PATH_MAX);
+    };
 
     strncpy(target_dir, argv[1], PATH_MAX);
 
