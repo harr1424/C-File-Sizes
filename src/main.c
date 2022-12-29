@@ -1,3 +1,17 @@
+
+/*
+c_file_sizes
+
+Author: John Harrington 
+
+A program demonstrating the use of dynamic memory allocation in C. 
+This program will recursively traverse a specified directory and 
+record the names and file sizes of files found. 
+
+The ten largest files and their sizes will output to std::out. 
+*/
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <dirent.h>
@@ -30,7 +44,7 @@ static int compare(const void *a, const void *b)
     const struct FS_Info *entryA = (FS_Info *)a;
     const struct FS_Info *entryB = (FS_Info *)b;
 
-return entryB->size - entryA->size;
+    return (entryB->size - entryA->size) - (entryA->size - entryB->size);
 }
 
 /*
