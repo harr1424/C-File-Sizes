@@ -1,3 +1,18 @@
+/*
+
+c_file_sizes
+
+Author: John Harrington 
+
+A program demonstrating the use of dynamic memory allocation in C. 
+
+This program will recursively traverse a specified directory and 
+record the names and file sizes of files found. 
+
+The ten largest files and their sizes will output to std::out. 
+*/
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <dirent.h>
@@ -6,13 +21,22 @@
 #include <limits.h>
 #include <unistd.h>
 #include <time.h>
-#include "fs_info.h"
 
 // initial size of array used to contain filesystem entries
 size_t fs_info_arr_size = 100;
 
 // number of largest entries to output
 const int num_entries = 10;
+
+/*
+    A struct to contain the name of a filesystem entry and its size in bytes. 
+    An array of this type will be used to catalog all filesystem entries for 
+    the directory specified as command line argument.
+*/
+typedef struct FS_Info {
+    char name[1024];
+    long long size;
+} FS_Info ;
 
 // global pointer to current FS_Info array
 // will be updated as the array is resized using dynamic memory allocation
