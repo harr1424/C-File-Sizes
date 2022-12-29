@@ -8,7 +8,7 @@ build/main.o: src/main.c
 	clang -c src/main.c -o build/main.o -pthread
 
 clean: 
-	rm -f build/my_binary build/*.o
+	rm -f build/binary build/*.o
 
 run: 
 	./build/binary $(DIR)
