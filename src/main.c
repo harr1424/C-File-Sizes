@@ -23,10 +23,10 @@ The ten largest files and their sizes will output to std::out.
 #include <time.h>
 
 // initial size of array used to contain filesystem entries
-size_t fs_info_arr_size = 100;
+size_t FS_INFO_ARR_SIZE = 100;
 
 // number of largest entries to output
-const int num_entries = 10;
+const int NUM_ENTRIES = 10;
 
 /*
     A struct to contain the name of a filesystem entry and its size in bytes. 
@@ -58,7 +58,7 @@ void update_fs_info_arr(char *path)
     struct stat st;
     if (stat(path, &st) == 0)
     {
-        if (items_added < fs_info_arr_size) // if array capacity will not be exceeded
+        if (items_added < FS_INFO_ARR_SIZE) // if array capacity will not be exceeded
         {
             strncpy(curr_fs_info_ptr[items_added].name, path, sizeof(curr_fs_info_ptr[items_added].name) - 1);
             curr_fs_info_ptr[items_added].size = st.st_size;
@@ -67,8 +67,8 @@ void update_fs_info_arr(char *path)
         }
         else // double the size of the containing array
         {
-            fs_info_arr_size *= 2;
-            FS_Info *resized_fs_entries = realloc(curr_fs_info_ptr, fs_info_arr_size * sizeof(*curr_fs_info_ptr));
+            FS_INFO_ARR_SIZE *= 2;
+            FS_Info *resized_fs_entries = realloc(curr_fs_info_ptr, FS_INFO_ARR_SIZE * sizeof(*curr_fs_info_ptr));
             if (resized_fs_entries)
             {
                 curr_fs_info_ptr = resized_fs_entries;
@@ -157,12 +157,12 @@ int main(int argc, char *argv[])
         strncpy(target_dir, argv[1], PATH_MAX);
     };
 
-    printf("Finding %d largest files in: %s\n", num_entries, target_dir);
+    printf("Finding %d largest files in: %s\n", NUM_ENTRIES, target_dir);
 
     /* Create a pointer to the start of the FS_Info array and set the global
         variable curr_fs_info_ptr to this memory address
     */
-    FS_Info *fs_entries = calloc(fs_info_arr_size, sizeof(*fs_entries));
+    FS_Info *fs_entries = calloc(FS_INFO_ARR_SIZE, sizeof(*fs_entries));
     if (!fs_entries)
     {
         fprintf(stderr, "Malloc of fs_entries failed in main\n");
@@ -174,14 +174,14 @@ int main(int argc, char *argv[])
     walk(target_dir);
 
     // sort the entries descending by file size
-    qsort(curr_fs_info_ptr, fs_info_arr_size, sizeof(*curr_fs_info_ptr), compare);
+    qsort(curr_fs_info_ptr, FS_INFO_ARR_SIZE, sizeof(*curr_fs_info_ptr), compare);
 
     float endTIme = (float)clock()/CLOCKS_PER_SEC;
 
     printf("Program completed in %f seconds", endTIme - startTime);
 
     // output ten largest files found
-    for (int i = 0; i < num_entries; i++)
+    for (int i = 0; i < NUM_ENTRIES; i++)
     {
         printf("%s\t%lld\n", curr_fs_info_ptr[i].name, curr_fs_info_ptr[i].size);
     }
