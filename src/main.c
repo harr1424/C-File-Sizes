@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
     FS_Info *fs_entries = calloc(FS_INFO_ARR_SIZE, sizeof(*fs_entries));
     if (!fs_entries)
     {
-        fprintf(stderr, "Malloc of fs_entries failed in main\n");
+        fprintf(stderr, "calloc() of fs_entries failed in main\n");
         return EXIT_FAILURE;
     }
     curr_fs_info_ptr = fs_entries;
