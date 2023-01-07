@@ -165,8 +165,6 @@ int main(int argc, char *argv[])
         strncpy(target_dir, argv[1], PATH_MAX);
     };
 
-    strncpy(target_dir, argv[1], PATH_MAX);
-
     printf("Finding the %zu largest files in: %s\n", FS_INFO_ARR_SIZE, target_dir);
 
     // recursively visit all entries in the specified directory
