@@ -183,6 +183,7 @@ int main(int argc, char *argv[])
     // output ten largest files found
     for (int i = 0; i < NUM_ENTRIES; i++)
     {
+        if (curr_fs_info_ptr[i].size > 0)
         printf("%s\t%lld\n", curr_fs_info_ptr[i].name, curr_fs_info_ptr[i].size);
     }
 
