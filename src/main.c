@@ -22,7 +22,7 @@ The ten largest files and their sizes will output to std::out.
 #include <time.h>
 
 // size of array used to contain filesystem entries
-const size_t fs_info_arr_size = 10;
+const size_t FS_INFO_ARR_SIZE = 10;
 
 /*
     A struct to contain the name of a filesystem entry and its size in bytes.
@@ -36,7 +36,7 @@ typedef struct FS_Info
 } FS_Info;
 
 // global pointer to FS_Info array
-FS_Info fs_info_arr[fs_info_arr_size];
+FS_Info fs_info_arr[FS_INFO_ARR_SIZE];
 
 // used to sort fs_entries array descending in terms of entry size
 static int compare(const void *a, const void *b)
@@ -56,7 +56,7 @@ FS_Info *get_smallest_entry(FS_Info *entries)
     long long smallest = entries[0].size;
     FS_Info *target = &entries[0];
 
-    for (int i = 1; i < fs_info_arr_size; i++)
+    for (int i = 1; i < FS_INFO_ARR_SIZE; i++)
     {
         if (entries[i].size < smallest)
         {
@@ -78,7 +78,7 @@ void update_fs_info_arr(char *path)
     struct stat st;
     if (stat(path, &st) == 0)
     {
-        if (items_added < fs_info_arr_size) // if array capacity will not be exceeded
+        if (items_added < FS_INFO_ARR_SIZE) // if array capacity will not be exceeded
         {
             strncpy(fs_info_arr[items_added].name, path, PATH_MAX);
             fs_info_arr[items_added].size = st.st_size;
@@ -167,20 +167,20 @@ int main(int argc, char *argv[])
 
     strncpy(target_dir, argv[1], PATH_MAX);
 
-    printf("Finding the %zu largest files in: %s\n", fs_info_arr_size, target_dir);
+    printf("Finding the %zu largest files in: %s\n", FS_INFO_ARR_SIZE, target_dir);
 
     // recursively visit all entries in the specified directory
     walk(target_dir);
 
     // sort the entries descending by file size
-    qsort(fs_info_arr, fs_info_arr_size, sizeof(*fs_info_arr), compare);
+    qsort(fs_info_arr, FS_INFO_ARR_SIZE, sizeof(*fs_info_arr), compare);
 
     float endTime = (float)clock()/CLOCKS_PER_SEC;
 
     printf("Program completed in %f seconds\n", endTime - startTime);
 
     // output ten largest files found
-    for (int i = 0; i < fs_info_arr_size; i++)
+    for (int i = 0; i < FS_INFO_ARR_SIZE; i++)
     {
         printf("%s\t%lld\n", fs_info_arr[i].name, fs_info_arr[i].size);
     }
