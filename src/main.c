@@ -175,14 +175,14 @@ int main(int argc, char *argv[])
 
     float endTime = (float)clock()/CLOCKS_PER_SEC;
 
-    printf("Program completed in %f seconds\n", endTime - startTime);
-
     // output ten largest files found
     for (int i = 0; i < FS_INFO_ARR_SIZE; i++)
     {
         if (fs_info_arr[i].size > 0)
         printf("%s\t%lld\n", fs_info_arr[i].name, fs_info_arr[i].size);
     }
+
+    printf("\nProgram completed in %f seconds\n", endTime - startTime);
 
     return EXIT_SUCCESS;
 }
