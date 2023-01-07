@@ -180,6 +180,7 @@ int main(int argc, char *argv[])
     // output ten largest files found
     for (int i = 0; i < FS_INFO_ARR_SIZE; i++)
     {
+        if (fs_info_arr[i].size > 0)
         printf("%s\t%lld\n", fs_info_arr[i].name, fs_info_arr[i].size);
     }
 
