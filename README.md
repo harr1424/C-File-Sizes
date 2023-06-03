@@ -1,7 +1,7 @@
-# c_filesystem_size
+# C-File-Sizes
 A simple program written in C to find large files in a specified directory. 
 
-This project has two branches: [main](https://github.com/harr1424/c_filesystem_size/tree/main/src) uses dynamic memory allocation to add filesyste entries to an ever-growing array. [static-allocation](https://github.com/harr1424/c_filesystem_size/tree/static-allocation/src) uses a statically allocated array of ten filesystem entries, and will replace existing entries with larger ones as they are found. 
+This project has two branches: [the main branch](https://github.com/harr1424/c_filesystem_size/tree/main/src) uses dynamic memory allocation to add filesyste entries to an ever-growing array. [The static-allocation branch](https://github.com/harr1424/c_filesystem_size/tree/static-allocation/src) uses a statically allocated array of ten filesystem entries, and will replace existing entries with larger ones as they are found. 
 
 Benchmarking the two implementations against the directory containing the [Google Cloud CLI](https://cloud.google.com/sdk/docs/install-sdk) shows that the statically allocated array implementation offers only a slight improvement in program runtime. 
 
